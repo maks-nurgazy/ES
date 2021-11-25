@@ -1,4 +1,7 @@
-const data = [
+import { DynamoDBRecord, DynamoDBStreamEvent } from 'aws-lambda';
+import { DynamoDB } from 'aws-sdk';
+
+const vehicles = [
   {
     id: '20211021_R4567GT',
     arrivalPurpose: 'CARGO_IMPORT',
@@ -56,3 +59,73 @@ const data = [
   },
 ];
 
+interface RecordTemplateInput {
+  eventName: 'INSERT' | 'MODIFY' | 'REMOVE' | undefined;
+  data: any;
+  tableName: string;
+}
+
+async function convertToEvent() {
+  const dynamodbStreamEvent: DynamoDBStreamEvent = {
+    Records: vehicles.map((vehicle) => {
+      if (vehicle.status === 'ARRIVED') {
+        return getCreateRecordTemplate({
+          eventName: 'INSERT',
+          data: vehicle,
+          tableName: 'Vehicles',
+        });
+      } else {
+        return getUpdateRecordTemplate({
+          eventName: 'MODIFY',
+          data: vehicle,
+          tableName: 'Vehicles',
+        });
+      }
+    }),
+  };
+
+  console.log(JSON.stringify(dynamodbStreamEvent, null, 2));
+
+  function getCreateRecordTemplate(input: RecordTemplateInput): DynamoDBRecord {
+    const { eventName, data, tableName } = input;
+    const marshalledData = DynamoDB.Converter.marshall(data);
+
+    return {
+      eventName,
+      dynamodb: {
+        Keys: {
+          id: {
+            S: data.id,
+          },
+        },
+        NewImage: marshalledData as any,
+        OldImage: marshalledData as any,
+      },
+      eventSourceARN: `arn:aws:dynamodb:region:123456789012:table/${tableName}/stream/2016-11-16T20:42:48.104`,
+    };
+  }
+
+  function getUpdateRecordTemplate(input: RecordTemplateInput): DynamoDBRecord {
+    const { eventName, data, tableName } = input;
+    const marshalledData = DynamoDB.Converter.marshall(data);
+
+    return {
+      eventName,
+      dynamodb: {
+        Keys: {
+          id: {
+            S: data.id,
+          },
+        },
+        NewImage: marshalledData as any,
+        OldImage: {
+          ...marshalledData,
+          status: 'DEPARTED' as any,
+        },
+      },
+      eventSourceARN: `arn:aws:dynamodb:region:123456789012:table/${tableName}/stream/2016-11-16T20:42:48.104`,
+    };
+  }
+}
+
+convertToEvent();
