@@ -120,7 +120,7 @@ async function convertToEvent() {
         NewImage: marshalledData as any,
         OldImage: {
           ...marshalledData,
-          status: 'DEPARTED' as any,
+          status: 'ARRIVED' as any,
         },
       },
       eventSourceARN: `arn:aws:dynamodb:region:123456789012:table/${tableName}/stream/2016-11-16T20:42:48.104`,
