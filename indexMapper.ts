@@ -21,7 +21,7 @@ export class YourDocumentTableObject {
   actFormNumber?: string;
 
   @attribute()
-  arrivalDate: number;
+  arrivalDate: any;
 
   @attribute()
   arrivalPurpose: any;
@@ -33,16 +33,16 @@ export class YourDocumentTableObject {
   departureCountry: string;
 
   @attribute()
-  departureDate?: number;
+  departureDate?: any;
 
   @attribute()
   driver?: any;
 
   @attribute()
-  grossWeight: number;
+  grossWeight: any;
 
   @attribute()
-  netWeight?: number;
+  netWeight?: any;
 
   @attribute()
   organization?: any;
@@ -54,7 +54,7 @@ export class YourDocumentTableObject {
   status: any;
 
   @attribute()
-  tareWeight?: number;
+  tareWeight?: any;
 
   @attribute()
   trailerPlateNumber?: string;
