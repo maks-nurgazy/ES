@@ -46,7 +46,7 @@ async function createIndexMapping(index: string, mappings: any) {
           number_of_replicas: 1,
         },
         analysis: {
-          
+
         }
       },
     },

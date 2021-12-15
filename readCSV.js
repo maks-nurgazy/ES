@@ -48,7 +48,7 @@ async function createIndexMapping(index, mappings) {
             autocomplete_filter: {
               type: 'edge_ngram',
               min_gram: 1,
-              max_gram: 20,
+              max_gram: 30,
             },
           },
           analyzer: {
@@ -66,15 +66,62 @@ async function createIndexMapping(index, mappings) {
   return await esClient.indices.create(params);
 }
 
-async function getUserMapping() {
+function getUserMapping() {
   return {
     properties: {
       id: {
         type: 'keyword',
       },
+      clinicName: { type: 'text', analyzer: 'autocomplete' },
+      experience: {
+        type: 'text',
+      },
+      experienceSince: {
+        type: 'long',
+      },
+      email: {
+        type: 'keyword',
+      },
+      education: {
+        type: 'text',
+      },
       firstName: {
         type: 'text',
         analyzer: 'autocomplete',
+        fields: {
+          raw: {
+            type: 'keyword',
+          },
+        },
+      },
+      joinDate: {
+        type: 'long',
+      },
+      lastName: {
+        type: 'text',
+        analyzer: 'autocomplete',
+        fields: {
+          raw: {
+            type: 'keyword',
+          },
+        },
+      },
+      patronymic: {
+        type: 'text',
+        analyzer: 'autocomplete',
+      },
+      specialities: {
+        type: 'text',
+        analyzer: 'autocomplete',
+      },
+      phone: {
+        type: 'keyword',
+      },
+      __typename: {
+        type: 'keyword',
+      },
+      servicesDescription: {
+        type: 'text',
       },
     },
   };
@@ -105,8 +152,8 @@ async function manageIndex() {
 
   const data = await csvRead(csvFilePath);
 
-  console.log(data);
-  await createIndexMapping(index, getUserMapping);
+  // console.log(JSON.stringify(data, null, 2));
+  await createIndexMapping(index, getUserMapping());
   await mapData(index, data);
 }
 
